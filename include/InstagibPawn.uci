@@ -1,0 +1,6 @@
+event TakeDamage(int Damage, Controller InstigatedBy, vector HitLocation, vector Momentum, class<DamageType> DamageType, optional TraceHitInfo myHitInfo, optional Actor DamageCauser)
+{
+	Damage = 5555;
+	ReplicatedHitInfo.bBreakAllBones = true;
+	super.TakeDamage(Damage, InstigatedBy, HitLocation, Momentum, DamageType, myHitInfo, DamageCauser);
+}

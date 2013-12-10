@@ -1,0 +1,6 @@
+DefaultProperties
+{
+    PlayerControllerClass=class'`{GAMEMODE}PlayerController'
+    DefaultPawnClass=class'`{GAMEMODE}Pawn'
+	SpawnWaveInterval=1
+}
