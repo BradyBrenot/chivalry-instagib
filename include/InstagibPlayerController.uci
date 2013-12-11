@@ -1,1 +1,17 @@
-/* Nothing */
+reliable client function ShowDefaultGameHeader()
+{
+	if (AOCGRI(Worldinfo.GRI) == none)
+	{
+		SetTimer(0.1f, false, 'ShowDefaultGameHeader');
+		return;
+	}
+
+	super.ShowDefaultGameHeader();
+	ReceiveChatMessage("",Localize("ChatMessages", "Welcome", "Instagib"),EFAC_ALL,false,false,,false);
+	SetTimer(3.0f, false, 'ShowInstagibHeader');
+}
+
+function ShowInstagibHeader()
+{
+	ReceiveLocalizedHeaderText(Localize("ChatMessages", "Welcome", "Instagib"),5.0f);
+}
