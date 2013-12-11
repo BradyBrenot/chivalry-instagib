@@ -3,7 +3,10 @@ chivalry-instagib
 
 Any tiny bit of damage causes a character to explode. Fun for the whole family.
 
-This is itended as a simple example code mod, demonstrating the use of include files to reduce code duplication, as well as how to create a mod configuration file that allows server operators to easily use the mod.
+This mod is provided as an example of a code mod that: 
+- uses includes to reduce code duplication 
+- uses a config file for easy server setup 
+- uses localized strings to allow for translation 
 
 =================
 
