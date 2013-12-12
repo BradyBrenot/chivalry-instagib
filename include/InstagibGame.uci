@@ -1,3 +1,40 @@
+//SetGameType returns which game mode should be used for which map prefix
+//You can do whatever you want with this. You can even use Options 
+// (options => the ?blah=blah things added after the map name when launching a server or in the map list)
+//to add even more variety. See the ParseOption function in Src\Engine\Classes\GameInfo.uc
+struct MapPrefix
+{
+	var string Prefix;
+	var class<GameInfo> GameType;
+};
+
+var array<MapPrefix>	InstagibPrefixes;
+
+static event class<GameInfo> SetGameType(string MapName, string Options, string Portal)
+{
+	local string ThisMapPrefix;
+	local int pos;
+	local int i;
+	
+	LogAlwaysInternal("SetGameType is being called on"@default.Class);
+	
+	MapName = StripPlayOnPrefix( MapName );
+
+	// replace self with appropriate gametype if no game specified
+	pos = InStr(MapName,"-");
+	ThisMapPrefix = left(MapName,pos);
+	
+	for (i = 0; i < default.InstagibPrefixes.length; i++)
+	{
+		if (default.InstagibPrefixes[i].Prefix ~= ThisMapPrefix)
+		{
+			return default.InstagibPrefixes[i].GameType;
+		}
+	}
+	
+	return super.SetGameType(MapName, Options, Portal);
+}
+
 DefaultProperties
 {
     PlayerControllerClass=class'`{GAMEMODE}PlayerController'
@@ -6,4 +43,15 @@ DefaultProperties
 	
 	//This is the name that shows in the server browser for this mod:
 	ModDisplayString="Instagib"
+	
+	InstagibPrefixes.Add((Prefix="AOCFFA",GameType=class'Instagib.InstagibFFA'))
+	InstagibPrefixes.Add((Prefix="AOCTUT",GameType=class'Instagib.InstagibTUT'))
+	InstagibPrefixes.Add((Prefix="AOCDUEL",GameType=class'Instagib.InstagibAOCDuel'))
+	InstagibPrefixes.Add((Prefix="AOCLTS",GameType=class'Instagib.InstagibLTS'))
+	InstagibPrefixes.Add((Prefix="AOCKOTH",GameType=class'Instagib.InstagibKOTH'))
+	InstagibPrefixes.Add((Prefix="AOCTO",GameType=class'Instagib.InstagibTO'))
+	InstagibPrefixes.Add((Prefix="AOCTD",GameType=class'Instagib.InstagibTD'))
+	InstagibPrefixes.Add((Prefix="AOCCTF",GameType=class'Instagib.InstagibCTF'))
+	InstagibPrefixes.Add((Prefix="DUEL",GameType=class'Instagib.InstagibCDWDuel'))
+	InstagibPrefixes.Add((Prefix="CDWDUEL",GameType=class'Instagib.InstagibCDWDuel'))
 }
