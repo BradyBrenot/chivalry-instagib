@@ -1,3 +1,4 @@
+//Welcome users to the game
 reliable client function ShowDefaultGameHeader()
 {
 	if (AOCGRI(Worldinfo.GRI) == none)
@@ -7,6 +8,7 @@ reliable client function ShowDefaultGameHeader()
 	}
 
 	super.ShowDefaultGameHeader();
+	//Localize() will find the "Welcome" key in the "ChatMessages" section of "Instagib.XXX" where XXX is replaced with the user's language's name (English is "INT")
 	ReceiveChatMessage("",Localize("ChatMessages", "Welcome", "Instagib"),EFAC_ALL,false,false,,false);
 	SetTimer(3.0f, false, 'ShowInstagibHeader');
 }

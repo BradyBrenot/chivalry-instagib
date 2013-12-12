@@ -3,4 +3,7 @@ DefaultProperties
     PlayerControllerClass=class'`{GAMEMODE}PlayerController'
     DefaultPawnClass=class'`{GAMEMODE}Pawn'
 	SpawnWaveInterval=1
+	
+	//This is the name that shows in the server browser for this mod:
+	ModDisplayString="Instagib"
 }
