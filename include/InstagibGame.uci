@@ -2,19 +2,13 @@
 //You can do whatever you want with this. You can even use Options 
 // (options => the ?blah=blah things added after the map name when launching a server or in the map list)
 //to add even more variety. See the ParseOption function in Src\Engine\Classes\GameInfo.uc
-struct MapPrefix
-{
-	var string Prefix;
-	var class<GameInfo> GameType;
-};
-
-var array<MapPrefix>	InstagibPrefixes;
+var config array<GameTypePrefix>	SDKPrefixes;
 
 static event class<GameInfo> SetGameType(string MapName, string Options, string Portal)
 {
 	local string ThisMapPrefix;
-	local int pos;
-	local int i;
+	local int i,pos;
+	local class<GameInfo> NewGameType;
 	
 	LogAlwaysInternal("SetGameType is being called on"@default.Class);
 	
@@ -24,11 +18,15 @@ static event class<GameInfo> SetGameType(string MapName, string Options, string 
 	pos = InStr(MapName,"-");
 	ThisMapPrefix = left(MapName,pos);
 	
-	for (i = 0; i < default.InstagibPrefixes.length; i++)
+	for (i = 0; i < default.SDKPrefixes.length; i++)
 	{
-		if (default.InstagibPrefixes[i].Prefix ~= ThisMapPrefix)
+		if (default.SDKPrefixes[i].Prefix ~= ThisMapPrefix)
 		{
-			return default.InstagibPrefixes[i].GameType;
+			NewGameType = class<GameInfo>(DynamicLoadObject(default.SDKPrefixes[i].GameType,class'Class'));
+			if ( NewGameType != None )
+			{
+				return NewGameType;
+			}
 		}
 	}
 	
@@ -40,18 +38,8 @@ DefaultProperties
     PlayerControllerClass=class'`{GAMEMODE}PlayerController'
     DefaultPawnClass=class'`{GAMEMODE}Pawn'
 	SpawnWaveInterval=1
+	MinimumRespawnTime=0
 	
 	//This is the name that shows in the server browser for this mod:
 	ModDisplayString="Instagib"
-	
-	InstagibPrefixes.Add((Prefix="AOCFFA",GameType=class'Instagib.InstagibFFA'))
-	InstagibPrefixes.Add((Prefix="AOCTUT",GameType=class'Instagib.InstagibTUT'))
-	InstagibPrefixes.Add((Prefix="AOCDUEL",GameType=class'Instagib.InstagibAOCDuel'))
-	InstagibPrefixes.Add((Prefix="AOCLTS",GameType=class'Instagib.InstagibLTS'))
-	InstagibPrefixes.Add((Prefix="AOCKOTH",GameType=class'Instagib.InstagibKOTH'))
-	InstagibPrefixes.Add((Prefix="AOCTO",GameType=class'Instagib.InstagibTO'))
-	InstagibPrefixes.Add((Prefix="AOCTD",GameType=class'Instagib.InstagibTD'))
-	InstagibPrefixes.Add((Prefix="AOCCTF",GameType=class'Instagib.InstagibCTF'))
-	InstagibPrefixes.Add((Prefix="DUEL",GameType=class'Instagib.InstagibCDWDuel'))
-	InstagibPrefixes.Add((Prefix="CDWDUEL",GameType=class'Instagib.InstagibCDWDuel'))
 }
