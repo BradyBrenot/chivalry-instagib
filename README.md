@@ -7,6 +7,10 @@ This mod is provided as an example of a code mod that:
 - uses includes to reduce code duplication 
 - uses a config file for easy server setup 
 - uses localized strings to allow for translation 
+- customizes the name it uses in the server browser
+- works on any stock Chivalry game type
+
+Feel free to reuse this example or any parts of it, the whole point of this is to provide an example for modders. Just rename any derivative mods to something else to avoid confusion.
 
 =================
 
@@ -21,6 +25,15 @@ Start a server with ?modname=instagib on the command line (appended to the map).
 
 UDK.exe aoctd-frigid_p?modname=instagib ...
 
+=================
+
+You can specify the mod you'd like to use in the maplist as well (in PCServer-UDKGame.ini), allowing you to switch between mods if you want. For example: 
+
+Maplist=aoctd-frigid_p?modname=instagib 
+
+Maplist=aoctd-moor_p?modname=someothermod 
+
+================= 
 
 If you want to play offline, just use the 'open' console command, again appending ?modname
 
