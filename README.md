@@ -28,6 +28,7 @@ UDK.exe aoctd-frigid_p?modname=instagib ...
 You can specify the mod you'd like to use in the maplist as well (in PCServer-UDKGame.ini), allowing you to switch between mods if you want. For example: 
 
 Maplist=aoctd-frigid_p?modname=instagib 
+
 Maplist=aoctd-moor_p?modname=someothermod 
 
 ================= 
