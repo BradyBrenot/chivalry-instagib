@@ -1,6 +1,142 @@
 event TakeDamage(int Damage, Controller InstigatedBy, vector HitLocation, vector Momentum, class<DamageType> DamageType, optional TraceHitInfo myHitInfo, optional Actor DamageCauser)
 {
-	Damage = 5555;
-	ReplicatedHitInfo.bBreakAllBones = true;
+	if(Damage > 1)
+	{
+		Damage = 5555;
+		ReplicatedHitInfo.bBreakAllBones = true;
+	}
+
 	super.TakeDamage(Damage, InstigatedBy, HitLocation, Momentum, DamageType, myHitInfo, DamageCauser);
+}
+
+reliable server function AttackOtherPawn(HitInfo Info, string DamageString, optional bool bCheckParryOnly = false, optional bool bBoxParrySuccess, optional bool bHitShield = false, optional SwingTypeImpactSound LastHit = ESWINGSOUND_Slash, optional bool bQuickKick = false)
+{
+	local bool bFoundParryVolume;
+	local Vector TraceFromLocation;
+	
+	local Vector HitLocation, HitNormal;
+	
+	//Projectile blocking: we want to take the projectile's hit point, pull back, then trace to the pawn and see if we collide with the pawn's parry volume on the way
+	
+	if (Info.DamageType.default.bIsProjectile)
+	{
+		TraceFromLocation = Info.HitLocation + 300.f*Info.HitNormal;
+				
+			// ( class<actor> BaseClass, out actor Actor, out vector HitLoc, out vector HitNorm, vector End, optional vector Start
+		bFoundParryVolume = TraceComponent(HitLocation, HitNormal, Info.HitActor.ParryComponent, Info.HitLocation, TraceFromLocation);
+	}
+	
+	super.AttackOtherPawn(Info, DamageString, bCheckParryOnly, bBoxParrySuccess || bFoundParryVolume, bHitShield, LastHit, bQuickKick);
+}
+
+/** Overridden to allow parrying of projectiles. */
+simulated function bool DetectSuccessfulParry(out HitInfo Info, out int bParry, bool bCheckParryOnly, int ParryLR)
+{
+	local int StaminaDamage;
+	local bool bOutOfStamina;
+
+	bParry = 1;
+	StaminaDamage = 0;
+	
+	// make the weapon [and thus the pawn] go into a deflect state
+	if ( !Info.DamageType.default.bIsProjectile )
+	{
+		AOCWeapon(Weapon).ActivateDeflect(Info.HitActor.StateVariables.bIsParrying);
+		AOCWeaponAttachment( CurrentWeaponAttachment ).PlayParriedSound();
+		
+		DisableSprint(true);
+		StartSprintRecovery();
+	}	
+	
+	// opponent has a successful parry
+	AOCWeapon(Info.HitActor.Weapon).NotifySuccessfulParry(Info.AttackType, ParryLR);
+	
+	if(Info.HitActor.StateVariables.bIsActiveShielding)
+	{
+		AOCWeaponAttachment( Info.HitActor.CurrentWeaponAttachment ).PlayParrySound(true);
+		
+		// do a stamina loss only if it's a melee attack
+		if (!Info.DamageType.default.bIsProjectile)
+		{
+			StaminaDamage = Info.HitActor.ShieldClass.NewShield.static.CalculateParryDamage(Info.HitDamage);
+		
+			if (!Info.HitActor.HasEnoughStamina(StaminaDamage))
+			{
+				StaminaDamage = Info.HitActor.Stamina; 
+				Info.HitActor.ConsumeStamina(StaminaDamage);
+				// Regain 30 stamina
+				Info.HitActor.ConsumeStamina(-30.f);
+				AOCWeapon(Info.HitActor.Weapon).ActivateFlinch(true, Info.HitActor.GetHitDirection(Location), true, true, AOCWeapon(Weapon).bTwoHander);
+				Info.HitDamage = 0.0f;
+				bOutOfStamina = true;
+			}
+			
+			AOCGame(WorldInfo.Game).DisplayDebugDamage(Info.HitActor, self, EDAM_Stamina, StaminaDamage);
+			if(AOCPlayerController(Controller) != none)
+			{
+				AOCPlayerController(Controller).NotifyPawnWasParried(Info.HitActor, StaminaDamage, Info.BoneName, class<AOCWeapon>(Info.HitActor.Weapon.class), class<AOCWeapon>(Weapon.class));
+			}
+			if(AOCPlayerController(Info.HitActor.Controller) != none)
+			{
+				AOCPlayerController(Info.HitActor.Controller).NotifyPawnPerformedParry(PlayerReplicationInfo, StaminaDamage, Info.BoneName, class<AOCWeapon>(Weapon.class), class<AOCWeapon>(Info.HitActor.Weapon.class));
+			}
+
+			if(bOutOfStamina)
+			{
+				return true;
+			}
+
+			Info.HitActor.ConsumeStamina(StaminaDamage);
+		}
+		
+		//Parry means health damage is completely negated
+		Info.HitDamage = 0.0f;
+		
+		AOCGame(WorldInfo.Game).DisplayDebugDamage(Info.HitActor, self, EDAM_Stamina, StaminaDamage);
+		
+		// flinch if it's a kick
+		if (Info.AttackType == Attack_Shove)
+			AOCWeapon(Info.HitActor.Weapon).ActivateFlinch(true, Info.HitActor.GetHitDirection(Location), true, true, false);
+	}
+	else if(Info.HitActor.StateVariables.bIsParrying)
+	{
+		AOCWeaponAttachment( Info.HitActor.CurrentWeaponAttachment ).PlayParrySound(false);
+		
+		StaminaDamage = AOCWeapon(Info.HitActor.Weapon).CalculateParryDamage(AOCWeapon(Info.Instigator.Weapon), Info.AttackType);
+			
+		if (!Info.HitActor.HasEnoughStamina(StaminaDamage))
+		{
+			StaminaDamage = Info.HitActor.Stamina;
+			Info.HitActor.ConsumeStamina(StaminaDamage);
+			// Regain 30 stamina
+			Info.HitActor.ConsumeStamina(-30.f);
+			AOCWeapon(Info.HitActor.Weapon).ActivateFlinch(true, Info.HitActor.GetHitDirection(Location), true, true, AOCWeapon(Weapon).bTwoHander);
+			Info.HitDamage = 0.0f;
+
+			bOutOfStamina = true;
+		}
+
+		AOCGame(WorldInfo.Game).DisplayDebugDamage(Info.HitActor, self, EDAM_Stamina, StaminaDamage);
+		if(AOCPlayerController(Controller) != none)
+		{
+			AOCPlayerController(Controller).NotifyPawnWasParried(Info.HitActor, StaminaDamage, Info.BoneName, class<AOCWeapon>(Info.HitActor.Weapon.class), class<AOCWeapon>(Weapon.class));
+		}
+		if(AOCPlayerController(Info.HitActor.Controller) != none)
+		{
+			AOCPlayerController(Info.HitActor.Controller).NotifyPawnPerformedParry(PlayerReplicationInfo, StaminaDamage, Info.BoneName, class<AOCWeapon>(Weapon.class), class<AOCWeapon>(Info.HitActor.Weapon.class) );
+		}
+
+		if(bOutOfStamina)
+		{
+			return true;
+		}
+		
+		Info.HitActor.ConsumeStamina(StaminaDamage);
+		
+		//Parry means health damage is completely negated
+		Info.HitDamage = 0.0f;
+	}
+
+	return true;
+
 }

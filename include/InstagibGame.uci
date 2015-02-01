@@ -4,6 +4,18 @@
 //to add even more variety. See the ParseOption function in Src\Engine\Classes\GameInfo.uc
 var config array<GameTypePrefix>	SDKPrefixes;
 
+
+function PerformOnFirstSpawn(Controller NewPlayer)
+{
+	if(`{GAMEMODE}PlayerController(NewPlayer) != none)
+	{
+		`{GAMEMODE}PlayerController(NewPlayer).ClientOnFirstSpawn();
+	}
+
+	//Do last do that game mode chat message comes after the Instagib one
+	super.PerformOnFirstSpawn(NewPlayer);
+}
+
 static event class<GameInfo> SetGameType(string MapName, string Options, string Portal)
 {
 	local string ThisMapPrefix;

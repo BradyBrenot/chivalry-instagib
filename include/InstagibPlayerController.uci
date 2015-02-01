@@ -1,19 +1,8 @@
-//Welcome users to the game
-reliable client function ShowDefaultGameHeader()
+reliable client function ClientOnFirstSpawn()
 {
-	if (AOCGRI(Worldinfo.GRI) == none)
-	{
-		SetTimer(0.1f, false, 'ShowDefaultGameHeader');
-		return;
-	}
-
-	super.ShowDefaultGameHeader();
-	//Localize() will find the "Welcome" key in the "ChatMessages" section of "Instagib.XXX" where XXX is replaced with the user's language's name (English is "INT")
-	ReceiveChatMessage("",Localize("ChatMessages", "Welcome", "Instagib"),EFAC_ALL,false,false,,false);
-	SetTimer(3.0f, false, 'ShowInstagibHeader');
-}
-
-function ShowInstagibHeader()
-{
-	ReceiveLocalizedHeaderText(Localize("ChatMessages", "Welcome", "Instagib"),5.0f);
+	//Localize() will find the "WelcomeChatText" key in the "Instagib" section of "Instagib.XXX" where XXX is replaced with the user's language's name (English is "INT")
+	ReceiveChatMessage("",Localize("Instagib", "WelcomeChatText", "Instagib"),EFAC_ALL,false,false,,false);
+	
+	//Only show this on first spawn. Afterwards, only the normal game mode header will show.
+	ClientShowLocalizedHeaderText(Localize("Instagib","SpawnHeader","Instagib"),,Localize("Instagib","SpawnSubHeader","Instagib"),true,false);
 }

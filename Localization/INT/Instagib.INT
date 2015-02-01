@@ -1,2 +1,4 @@
-[ChatMessages]
-Welcome=Welcome to Instagib!
+[Instagib]
+SpawnHeader=Instagib mod
+SpawnSubHeader=All hits, unless blocked, are instant kills.
+WelcomeChatText=You're playing Instagib mod. All hits, unless blocked, are instant kills. Respawn times are cut down. You can parry projectiles. Good luck!
