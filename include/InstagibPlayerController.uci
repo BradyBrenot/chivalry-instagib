@@ -1,12 +1,14 @@
 reliable client function ClientOnFirstSpawn()
 {
-	//Localize() will find the "WelcomeChatText" key in the "Instagib" section of "Instagib.XXX" where XXX is replaced with the user's language's name (English is "INT")
-	//ReceiveChatMessage("",Localize("Instagib", "WelcomeChatText", "Instagib"),EFAC_ALL,false,false,,false);
+	//Localize() will find the "WelcomeChatText" key in the "Common" section of "Instagib.XXX" where XXX is replaced with the user's language's name (English is "INT")
+	//For whatever reason, the section of a localization file cannot be named after the name of your mod (e.g. "Instagib" as a section does not work in this case)
+	//ReceiveChatMessage("",Localize("Instagib", "WelcomeChatText", "Instagib"),EFAC_ALL,false,false,,false); <- Doesn't work!
+	ReceiveChatMessage("",Localize("Common", "WelcomeChatText", "Instagib"),EFAC_ALL,false,false,,false); // Should work
 	
 	//Only show this on first spawn. Afterwards, only the normal game mode header will show.
-	//ClientShowLocalizedHeaderText(Localize("Instagib","SpawnHeader","Instagib"),,Localize("Instagib","SpawnSubHeader","Instagib"),true,false);
+	ClientShowLocalizedHeaderText(Localize("Common","SpawnHeader","Instagib"),,Localize("Common","SpawnSubHeader","Instagib"),true,false);
 	
 	
-	ReceiveChatMessage("","You're playing Instagib mod. All hits, unless blocked, are instant kills. Respawn times are cut down. You can parry projectiles. Good luck!",EFAC_ALL,false,false,,false);
-	ClientShowLocalizedHeaderText("Instagib mod",,"All hits, unless blocked, are instant kills.",true,false);
+	//ReceiveChatMessage("","You're playing Instagib mod. All hits, unless blocked, are instant kills. Respawn times are cut down. You can parry projectiles. Good luck!",EFAC_ALL,false,false,,false);
+	//ClientShowLocalizedHeaderText("Instagib mod",,"All hits, unless blocked, are instant kills.",true,false);
 }
